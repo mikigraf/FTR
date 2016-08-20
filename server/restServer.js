@@ -22,6 +22,7 @@ app.get('/test', function (req, res) {
             });
 });
 
+        console.log("Got error: " + e.message);});
 //parameters: from, where, number of people, date period
 app.get('/ftr/package', function(req,res){
     var fromCity = req.param('from');
