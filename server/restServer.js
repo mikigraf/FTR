@@ -6,11 +6,10 @@ require('./configuration.js')();
 
 var trivago = 'api.trivago.com/webservice/tas';
 var skyscanner = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/{market}/{currency}/{locale}/{originPlace}/{destinationPlace}/{outboundPartialDate}/{inboundPartialDate}?apiKey={apiKey}';
-var skyscannerTest = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/GB/GBP/en-GB/UK/anywhere/anytime/anytime?apiKey=';
+var skyscannerTest = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/DE/EUR/en-GB/UK/anywhere/anytime/anytime?apiKey=';
 
 app.get('/test', function (req, res) {
     console.log("Testing successful");
-    console.log(sum(2,2));
     console.log(trivagoKey);
     http.get(skyscannerTest + skyscannerKey, function(res) {
         console.log("Got response: " + res.statusCode);
@@ -22,7 +21,22 @@ app.get('/test', function (req, res) {
             });
 });
 
+var skyscannerGetter = function(from,to,datefrom,dateto,price){
+    http.get(skyscannerTest + skyscannerKey, function(res) {
+        console.log("Got response: " + res.statusCode);
+        res.on("data", function(chunk) {
+        console.log("BODY: " + chunk);
+        var object = chunk;
+        return object;
+        });}).on('error', function(e) {
         console.log("Got error: " + e.message);});
+            
+}
+
+var trivagoGetter = function(from,to,datefrom,dateto,price){
+
+}
+
 //parameters: from, where, number of people, date period
 app.get('/ftr/package', function(req,res){
     var fromCity = req.param('from');
