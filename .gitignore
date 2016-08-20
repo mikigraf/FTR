@@ -11,5 +11,6 @@ npm-debug.log
 Dockerfile
 docker-compose.yml
 
-server/configuration.js
+*~
+.Rhistory
 
