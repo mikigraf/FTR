@@ -7,30 +7,72 @@ require('./configuration.js')();
 var trivago = 'api.trivago.com/webservice/tas';
 var skyscanner = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/{market}/{currency}/{locale}/{originPlace}/{destinationPlace}/{outboundPartialDate}/{inboundPartialDate}?apiKey={apiKey}';
 var skyscannerTest = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/DE/EUR/en-GB/UK/anywhere/anytime/anytime?apiKey=';
-
+var skyscannerPlace = 'http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/{market}/{currency}/{locale}/?id={id}&apiKey={apiKey}'
 app.get('/test', function (req, res) {
-    console.log("Testing successful");
-    console.log(trivagoKey);
-    http.get(skyscannerTest + skyscannerKey, function(res) {
-        console.log("Got response: " + res.statusCode);
-        res.on("data", function(chunk) {
-            console.log("BODY: " + chunk);
-        });
-            }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-            });
+    skyscannerGetter('UK','LON','DE','2016-08-25','2016-08-30',1000);
 });
 
-var skyscannerGetter = function(from,to,datefrom,dateto,price){
-    http.get(skyscannerTest + skyscannerKey, function(res) {
-        console.log("Got response: " + res.statusCode);
+var skyscannerGetter = function(userCountry,from,to,datefrom,dateto,price){
+    var currentUrl = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/' + userCountry + '/EUR/en-GB/' + from + '/' + to + '/' + datefrom + '/' + dateto + '?apiKey=' + skyscannerKey;
+    http.get(currentUrl, function(res) {
+        var response = '';
         res.on("data", function(chunk) {
-        console.log("BODY: " + chunk);
-        var object = chunk;
-        return object;
-        });}).on('error', function(e) {
-        console.log("Got error: " + e.message);});
-            
+            response += chunk;htp
+        });
+        var underBudget = ' ';
+        res.on("end", function(){
+            var data = JSON.parse(response);
+            var flights = [];
+            //console.log(data);
+            data[Object.keys(data)[0]].forEach(function(o){
+                if((o["Price"] < price)){
+                    var find = function(id){
+                        var found = null;
+                        data[Object.keys(data)[2]].forEach(function(x){
+                            var element = x["PlaceId"];
+                            // console.log("Element: " + x["Name"]);
+                            if(id == element){
+                                found = x["Name"];
+                            }
+                        });
+                        return found;
+                    }
+                    var origin = find(o["OriginId"]);
+                    var desti = find(o["DestinationId"]);
+                    console.log(origin + " | " + o["Price"] + "->" + desti);
+                    flights.push(o);
+                    // console.log("ORIGIN------------------------------------------------------------------------");
+                    // http.get("http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/" + userCountry + "/EUR/en-GB/?id=" + o["OriginId"] + "&apiKey=" + skyscannerKey,function(res) {
+                    //     var response = '';
+                    //     res.on("data", function(chunk) {
+                    //         response += chunk;
+                    //     });
+
+                    //     res.on("end", function(){
+                    //         console.log("Origin: " + response);
+                    //     });
+                    // });
+                    // console.log("DESTINATION-------------------------------------------------------------------");
+                    // http.get("http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/" + userCountry + "/EUR/en-GB/?id=" + o["DestinationId"] + "&apiKey=" + skyscannerKey,function(res) {
+                    //     var response = '';
+                    //     res.on("data", function(chunk) {
+                    //         response += chunk;
+                    //     });
+
+                    //     res.on("end", function(){
+                    //         console.log("Origin: " + response);
+                    //     });
+                    // });
+                }
+                        
+                        //http.get("http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/" + userCountry + "/{EUR/en-GB/?id=" + o.destination + "&apiKey=" + skyscannerKey);
+            });
+            flights.sort(function(a,b){
+                return a["Price"]-b["Price"];
+            });
+            //console.log(flights);
+        });
+    });      
 }
 
 var trivagoGetter = function(from,to,datefrom,dateto,price){
