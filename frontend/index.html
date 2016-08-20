@@ -11,33 +11,40 @@
   </head>
   <body>
     <div class="container">
-      <header>
-        <h1>FTR - Bringing Friends Together</h1>
-      </header>
-      <section id="main">
-        <p>Main content</p>
-        <label form="main-form">some text</label>
-        <form method="GET" action="" id="main-form">
-          <label for="from">Your start location</label>
-          <input type="text" name="from" placeholder="e.g. Düsseldorf">
-          <label for="to">Your destination</label>
-          <input type="text" name="to" placeholder="e.g. London">
-          <label for="date-from">From</label>
-          <input type="date" name="date-from">
-          <label for="date-to">To</label>
-          <input type="date" name="date-to">
-          <label for="preis">Maximum price</label>
-          <input type="text" name="price" placeholder="9001">
-          <input type="submit" value="Send" name="submit">
-        </form>
-      </section>
-      <footer>
-        <p>
-          <small>
-            Copyright &copy; 2016 FTR
-          </small>
-        </p>
-      </footer>
+      <div class="row">
+        <header class="centered">
+          <img class="logo" src="img/ftr_logo_small.png" alt="FTR - Bringing Friends Together">
+        </header>
+      </div>
+      <div class="row">
+        <section id="main">
+          <div class="content">
+            <label form="main-form"></label>
+            <form method="GET" action="/results" id="main-form">
+              <!-- <label for="from">Your start location</label> -->
+              <input type="text" name="from" placeholder="e.g. Düsseldorf">
+              <!-- <label for="to">Your destination</label> -->
+              <input type="text" name="to" placeholder="e.g. London" required>
+              <!-- <label for="date-from">From</label> -->
+              <input type="date" name="date-from">
+              <!-- <label for="date-to">To</label> -->
+              <input type="date" name="date-to" required>
+              <!-- <label for="price"></label> -->
+              <input type="text" name="price" placeholder="9001">
+              <input type="submit" value="Send" name="submit">
+            </form>
+          </div>
+        </section>
+      </div>
+      <div class="row">
+        <footer class="centered">
+          <p>
+            <small>
+              Copyright &copy; 2016 FTR
+            </small>
+          </p>
+        </footer>
+      </div>
     </div>
     <script type="text/javascript" src="js/ftr.js"></script>
   </body>

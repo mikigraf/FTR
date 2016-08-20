@@ -1,3 +1,28 @@
+body {
+  /* border-top: 20px solid white */
+  color: #fff;
+  background-color: #d56a37; }
+  @media screen and (min-width: 450px) {
+    body {
+      background-color: #000; } }
 
+input {
+  color: #000; }
+
+header {
+  margin: 0 auto; }
+
+.logo {
+  padding: 20px 0;
+  display: block;
+  margin: 0 auto; }
+
+.centered {
+  text-align: center; }
+
+.content {
+  padding: 0 20px;
+  margin: 0 10px;
+  background-color: #f3f3f3; }
 
 /*# sourceMappingURL=ftr.css.map */

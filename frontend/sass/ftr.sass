@@ -1,1 +1,31 @@
 @import "values"
+
+$break_small: 450px
+$break_large: 1200px
+
+body
+  /* border-top: 20px solid white */
+  color: $ftr_font_color
+  background-color: $ftr_bg_color
+  @media screen and (min-width: $break_small) 
+    background-color: #000
+  @media screen and (min-width: $break_large)
+
+input
+  color: #000
+
+header
+  margin: 0 auto
+
+.logo
+  padding: 20px 0
+  display: block
+  margin: 0 auto
+
+.centered
+  text-align: center
+
+.content
+  padding: 0 20px
+  margin: 0 10px
+  background-color: $ftr_bg_color_light
