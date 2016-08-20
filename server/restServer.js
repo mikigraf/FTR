@@ -9,6 +9,18 @@ app.get('/test', function (req, res) {
     console.log(trivagoKey);
 });
 
+app.get('/login', function (req, res) {
+  res.end('Login');
+});
+
+app.get('/register', function (req, res) {
+  res.end('Register');
+});
+
+app.get('/user', function (req, res) {
+  res.end('User');
+});
+
 
 var server = app.listen(8080,'127.0.0.1', function () {
 
