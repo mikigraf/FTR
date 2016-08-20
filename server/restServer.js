@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var passport = require('passport');
 var fs = require("fs");
 require('./configuration.js')();
 
@@ -10,15 +11,15 @@ app.get('/test', function (req, res) {
 });
 
 app.get('/login', function (req, res) {
-  res.end('Login');
+  res.send('Login');
 });
 
 app.get('/register', function (req, res) {
-  res.end('Register');
+  res.send('Register');
 });
 
 app.get('/user', function (req, res) {
-  res.end('User');
+  res.send('User');
 });
 
 
