@@ -1,2 +1,6 @@
 server/configuration.js
 node_modules/
+*.swp
+.sass-cache/
+bower_components/
+Vagrantfile

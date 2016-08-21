@@ -40,4 +40,18 @@ footer {
   margin: 0 10px;
   background-color: #f3f3f3; }
 
+.box {
+  background-color: #eee; }
+
+.doodle-link {
+  margin: 20px auto;
+  text-align: center; }
+
+.fixedbutton {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  top: 0px;
+  right: 0px; }
+
 /*# sourceMappingURL=ftr.css.map */
