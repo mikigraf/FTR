@@ -108,7 +108,7 @@ app.get('/trivago', function (req, res) {
     console.log("Testing successful");
     console.log(trivagoKey);
     
-	var trg = trivagoGetter('london', 2016-08-26, 2016-08-30, 4, 5); 
+	var trg = trivagoGetter('london', '2016-08-29', '2016-08-30', 200); 
 
 });
 
@@ -146,7 +146,7 @@ function create_signed_url(method, uri, access_id, secret_key) {
     }
 
     query_parameters['timestamp'] = (new Date()).toISOString().split('.')[0] + 'Z';
-    console.log(query_parameters['timestamp']);
+    //console.log(query_parameters['timestamp']);
     query_parameters['access_id'] = access_id;
 
     var sorted_query_parameters = {};
@@ -255,7 +255,7 @@ var findPathOfLocation = function(location){
 	function callbacklocation(error, response, body) {
 
 		//response.on(en)
-
+		response.on("data")
 		var data = JSON.parse(body);
 		console.log('BODY location: ' + body);
 
@@ -269,7 +269,10 @@ var findPathOfLocation = function(location){
 		});
 		console.log("------ " + foundPaths[0]);
 	}
-	request(locOptions, callbacklocation);
+	var locRequest = request(locOptions, callbacklocation);
+	locRequest.end();
+
+
 	return foundPaths[0];
 
 }
@@ -278,10 +281,12 @@ var findPathOfLocation = function(location){
 var trivagoGetHotelInfo = function(foundPath, start_date, end_date,price){
 	var signedURL = create_signed_url(
         'GET',
-        'https://api.trivago.com/webservice/tas/hotels?path='+foundPath,
+        'https://api.trivago.com/webservice/tas/hotels?currency=EUR&order=price&path='+foundPath+'&start_date=' + start_date + '&end_date=' + end_date + '&max_price=' + price ,
         trivagoAccess,
         trivagoKey
     )
+
+
 	var options = {
 	  url: signedURL,
 	  headers: {
@@ -294,28 +299,59 @@ var trivagoGetHotelInfo = function(foundPath, start_date, end_date,price){
 	var hotels =  [];
 
 	function callback(error, response, body) {
-		console.log('BODY: ' + body);
-	  	hotels.push(1);
+
+		if(response.statusCode==200){
+
+			var mainbody = JSON.parse(body);
+	       	var hotelsTag = mainbody["hotels"];
+
+		    hotelsTag.forEach(function(o){
+		       var hotelIter = [];
+	           var deals = o["deals"];
+	           deals.forEach(function(d){
+	           		hotelIter["room_description"] = d["description"];
+	           		hotelIter["booking_link"] = d["booking_link"];
+	           		hotelIter["price"] = d["price"]["formatted"];
+	           		hotelIter["booking_site_name"] = d["booking_site"]["name"];
+	           		hotelIter["booking_site_logo"] = d["booking_site"]["logo"];
+	           		hotelIter["hotel_url"] = d["hotel_details"]["href"];
+	           		//var hotelItemRequest = request()
+
+	           		console.log(d["hotel_details"]["href"]);
+
+
+
+	           		console.log(d["booking_site"]["logo"]);
+	           });
+	           hotels.push(hotelIter);
+	       });
+		}	else {
+			callback(error, response, body);
+		}	
 	}
-	 
-	request(options, callback);
-	return hotels;
+		
+
+		request(options, callback);
+		return hotels;
+	
 }
 
 var trivagoGetter = function(location, start_date, end_date,price){	
 	//var trivagoAppended = trivagoTest + "path=84565&start_date=2016-08-05T08%3A27%3A50Z&end_date=2016-08-06T08%3A27%3A50Z&access_id=" + trivagoAccess + "&timestamp=2016-08-04T08:27:50+00:00";
 	var foundPath;
 	var hotels ;
-	async.series([
+
+	 hotels = trivagoGetHotelInfo(38715, start_date, end_date, price);
+	/*async.series([
 		function(callback){
-        	foundPath = findPathOfLocation(location);
+        	//foundPath = findPathOfLocation(location);
         	//hotels = trivagoGetHotelInfo(38715, start_date, end_date, price);
 	    },
 	    function(callback){
-	        hotels = trivagoGetHotelInfo(foundPath, start_date, end_date, price);
+	        hotels = trivagoGetHotelInfo(38715, start_date, end_date, price);
 	    },
     ]);
-
+*/
 	/*var foundPath = findPathOfLocation(location);
 	
 	var hotels = trivagoGetHotelInfo(foundPath, start_date, end_date, price);*/
