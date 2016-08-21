@@ -5,37 +5,40 @@
     <title>FTR - Bring Friends Together</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Cabin|Merriweather|Muli|Quattrocento+Sans" rel="stylesheet">
     <link rel="stylesheet" href="css/ftr.css">
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
   </head>
   <body>
+    <header class="centered">
+      <img class="logo" src="img/ftr_logo_small.png" alt="FTR - Bringing Friends Together">
+    </header>
     <div class="container">
       <div class="row">
-        <header class="centered">
-          <img class="logo" src="img/ftr_logo_small.png" alt="FTR - Bringing Friends Together">
-        </header>
+        <p class="info">Find the best hotel and flight combinations for your blablabla</p>
       </div>
       <div class="row">
         <section id="main">
-          <div class="content">
-            <label form="main-form"></label>
-            <form method="GET" action="/results" id="main-form">
+          <form method="GET" action="/results" id="main-form">
+            <div class="input-group">
               <!-- <label for="from">Your start location</label> -->
-              <input type="text" name="from" placeholder="e.g. Düsseldorf">
+              <input type="text" class="form-control" name="from" placeholder="e.g. Düsseldorf">
               <!-- <label for="to">Your destination</label> -->
-              <input type="text" name="to" placeholder="e.g. London" required>
-              <!-- <label for="date-from">From</label> -->
-              <input type="date" name="date-from">
-              <!-- <label for="date-to">To</label> -->
-              <input type="date" name="date-to" required>
-              <!-- <label for="price"></label> -->
-              <input type="text" name="price" placeholder="9001">
-              <input type="submit" value="Send" name="submit">
-            </form>
-          </div>
+              <input type="text" class="form-control" name="destination" placeholder="e.g. London">
+            </div>
+            <!-- <label for="date-from">From</label> -->
+            <input type="date" class="form-control" name="stay">
+            <!-- <label for="date-to">To</label> -->
+            <input type="date" class="form-control" name="until">
+            <!-- <label for="price"></label> -->
+            <input type="text" class="form-control" name="price" placeholder="0">
+            <input type="submit" class="form-control btn-success" value="Find" name="submit">
+          </form>
         </section>
       </div>
+      <section id="results">
+      </section>
       <div class="row">
         <footer class="centered">
           <p>
