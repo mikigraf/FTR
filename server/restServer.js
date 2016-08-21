@@ -16,6 +16,13 @@ var skyscanner = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1
 var skyscannerTest = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/DE/EUR/en-GB/UK/anywhere/anytime/anytime?apiKey=';
 var skyscannerPlace = 'http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/{market}/{currency}/{locale}/?id={id}&apiKey={apiKey}'
 
+//parameters: from, where, number of people, date period
+app.get('/api/result/:from/:destination/:start/:untill/:price', function(req,res){
+    //res.send(JSON.stringify({ a: 1 }));
+
+    trivagoGetter(req.params.destination, req.params.start, req.params.untill, req.params.price);
+}); 
+
 app.get('/country/:from/:destination/:start/:untill/:price', function (req, res) {
     
     /*
@@ -29,7 +36,8 @@ app.get('/city/:from/:destination/:start/:untill/:price', function (req, res) {
     /*
     example url: http://localhost:8080/test/lon/pl/2016-08-25/2016-08-30/1000
     */
-    skyscannerGetterCity('UK',req.params.from,req.params.destination,req.params.start,req.params.untill,req.params.price);
+    var test = skyscannerGetterCity('UK',req.params.from.substring(0,3),req.params.destination.substring(0,3),req.params.start,req.params.untill,req.params.price);
+    console.log(test);
 });
 
 var skyscannerGetter = function(userCountry,from,to,datefrom,dateto,price){
@@ -62,22 +70,42 @@ var skyscannerGetter = function(userCountry,from,to,datefrom,dateto,price){
                     /*
                     http.get(referral, function(res){
                         console.log(origin + " | " + o["Price"] + "->" + desti + " " + res);
-
                     }); 
                     */
-                    console.log(origin + " | " + o["Price"] + "->" + desti + " " + referral);
+                    data[Object.keys(data)[1]].forEach(function(h){
+                        if(h["QuoteId"] == o["QuoteId"]){
+                            console.log(origin);
+                            console.log(desti);
+                            console.log(h["OutboundLeg"]);
+                            console.log(h["InboundLeg"]);   
+                        }
+                    });
+
+                    //console.log(o["QuoteIds"]);
+                    //console.log(origin + " | " + o["Price"] + "->" + desti + " " + referral);
                     flights.push(o);
+                    
                 }
              });
-            flights.sort(function(a,b){
+             
+              flights.sort(function(a,b){
                 return a["Price"]-b["Price"];
             });
+            
+            /* 
+            flights.forEach(function(c){
+                console.log(JSON.stringify(c));
+            });  */
+        
         });
     });      
 }
 
+
 var skyscannerGetterCity = function(userCountry,from,to,datefrom,dateto,price){
     var currentUrl = 'http://partners.api.skyscanner.net/apiservices/browseroutes/v1.0/' + userCountry + '/EUR/en-GB/' + from + '/' + to + '/' + datefrom + '/' + dateto + '?apiKey=' + skyscannerKey;
+     // TODO: CALL THE TRIVAGO FUNCTION AND GET WITH THE SAME PARAMETERS. THEN APPEND THIS TO THE JSON OBJECT AND RETURN IT FROM THE INSIDE OF THIS FUNCTION
+    var flights = [];
     http.get(currentUrl, function(res) {
         var response = '';
         res.on("data", function(chunk) {
@@ -86,29 +114,58 @@ var skyscannerGetterCity = function(userCountry,from,to,datefrom,dateto,price){
         var underBudget = ' ';
         res.on("end", function(){
             var data = JSON.parse(response);
-            var flights = [];
-            //console.log(data);
+            console.log(data);
+            var temp = [];
+            var a = 0;
             data[Object.keys(data)[1]].forEach(function(o){
                 //console.log(o);
-                if((o["MinPrice"] < price)){
-                    var referral = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/" + userCountry + "/EUR/en-GB/" + from + "/" + to + "/" + datefrom + "/" + dateto + "?apiKey=" + skyscannerKey.substring(0,15);
-                    console.log(referral); 
-                }
-                 
-            });
-            
-            flights.sort(function(a,b){
-                return a["Price"]-b["Price"];
-            });
+                    if(o["MinPrice"] <= 0.6*price){
+                        var outbound = o["OutboundLeg"];
+                        var inbound = o["InboundLeg"];
+                        if(typeof outbound !== 'undefined' && typeof inbound !== 'undefined'){
+                            console.log('-------------------------------------------------------------------------------');
+                            console.log(from + " -> " + to);
+                            console.log(o["MinPrice"]);
+                            console.log(outbound["DepartureDate"]);
+                            console.log(inbound["DepartureDate"]);
+                            console.log('-------------------------------------------------------------------------------');
+                            o['outboundDate'] = outbound["DepartureDate"];
+                            o['inboundDate'] = inbound["DepartureDate"];
+                            var moneyLeft = price-o["MinPrice"];
+                            //trivagoGetter(to, outbound["DepartureDate"], inbound["DepartureDate"], moneyLeft);
+                            var diff = (Math.abs(Date.parse(inbound["DepartureDate"].substr(0,10)) - Date.parse(outbound["DepartureDate"].substr(0,10))))/ (1000*60*60*24);
+                            console.log("diff " + diff);
+                        }
+                        
+                        o['from'] = from;
+                        o['destination'] = to;
+                        
+                        o['referral'] = "http://partners.api.skyscanner.net/apiservices/referral/v1.0/" + userCountry + "/EUR/en-GB/" + from + "/" + to + "/" + datefrom + "/" + dateto + "?apiKey=" + skyscannerKey.substring(0,15); 
+                        if(flights.length < 3){
+                            flights.push(o);
+                        }
+                        if(flights){
+                            flights.sort(function(a,b){
+                            return a["Price"]-b["Price"];
+                        });
+                        }
+                    }
+                }); 
+            console.log('--------sorted-----');
+            for(var l = 0; l < 3; l++){
+                console.log(flights[l]["MinPrice"]);
+            }
+            console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            console.log(flights);
         });
-    })
+    });
 }
 
 app.get('/trivago', function (req, res) {
     console.log("Testing successful");
     console.log(trivagoKey);
     
-	var trg = trivagoGetter('london', '2016-08-29', '2016-08-30', 200); 
+	var trg = trivagoGetter('london', '2016-08-29', '2016-08-30', 1000); 
 
 });
 
@@ -300,34 +357,38 @@ var trivagoGetHotelInfo = function(foundPath, start_date, end_date,price){
 
 	function callback(error, response, body) {
 
-		if(response.statusCode==200){
+		//if(response.statusCode==200){
 
 			var mainbody = JSON.parse(body);
 	       	var hotelsTag = mainbody["hotels"];
 
 		    hotelsTag.forEach(function(o){
-		       var hotelIter = [];
+		       var hotelIter = {};
+		       var link = o["_links"]["self"]["href"];
+	           hotelIter["hotel_url"] = link;
+
 	           var deals = o["deals"];
 	           deals.forEach(function(d){
 	           		hotelIter["room_description"] = d["description"];
 	           		hotelIter["booking_link"] = d["booking_link"];
-	           		hotelIter["price"] = d["price"]["formatted"];
+                    var diff = (Math.abs(Date.parse(start_date.substr(0,10)) - Date.parse(end_date.substr(0,10))))/ (1000*60*60*24);
+                    //console.log(start_date + "  " + end_date + "   " +diff);
+	           		hotelIter["price"] = d["price"]["formatted"] ;
+	           		hotelIter["hotel_stay_days"] = diff ;
 	           		hotelIter["booking_site_name"] = d["booking_site"]["name"];
 	           		hotelIter["booking_site_logo"] = d["booking_site"]["logo"];
-	           		hotelIter["hotel_url"] = d["hotel_details"]["href"];
+	           		//hotelIter["hotel_url"] = d["hotel_details"]["href"];
 	           		//var hotelItemRequest = request()
 
-	           		console.log(d["hotel_details"]["href"]);
+	           		//console.log(d["hotel_details"]["href"]);
 
 
 
-	           		console.log(d["booking_site"]["logo"]);
+	           		//console.log(d["booking_site"]["logo"]);
 	           });
+	           console.log(hotelIter["booking_site_name"].toString());
 	           hotels.push(hotelIter);
 	       });
-		}	else {
-			callback(error, response, body);
-		}	
 	}
 		
 
